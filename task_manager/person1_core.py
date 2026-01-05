@@ -14,18 +14,20 @@ from tkinter import ttk, messagebox, simpledialog, filedialog
 
 import psutil
 
-from .config import DEFAULT_CFG, HISTORY_LEN, USER_AUTOSTART_DIR, SYS_AUTOSTART_DIRS, PROC_STATUS_LABEL
+# [FIX] Thêm APP_NAME và save_cfg vào dòng import dưới đây
+from .config import (
+    DEFAULT_CFG, HISTORY_LEN, USER_AUTOSTART_DIR, SYS_AUTOSTART_DIRS, 
+    PROC_STATUS_LABEL, APP_NAME, save_cfg
+)
 from .utils import fmt_bytes, safe_call, is_system_process, dt_from_ts, readlink_exe, run_cmd
 from .models import ProcRow
+
 # ============================================================
 # PERSON 1 — CORE / APP SHELL
 #   - UI shell: notebook, status bar, menu
 #   - Refresh loop: tick -> refresh_all -> refresh_<tab>
 #   - App settings hooks: refresh interval, always-on-top, show-system
-# Deliverable: app start flow + list of persisted settings
 # ============================================================
-
-
 
 class CoreMixin:
     # ------------------------------------------------------------
@@ -70,11 +72,10 @@ class CoreMixin:
         bar = ttk.Frame(self)
         bar.pack(fill="x", side="bottom")
         ttk.Label(bar, textvariable=self.status_var, anchor="w").pack(fill="x", padx=10, pady=3)
+
     # ------------------------------------------------------------
     # [P1][UI] Menu bar + Settings entry points
     # ------------------------------------------------------------
-
-
     def _build_menubar(self):
         menubar = tk.Menu(self)
         self.config(menu=menubar)
@@ -120,9 +121,8 @@ class CoreMixin:
         menubar.add_cascade(label="Help", menu=m_help)
 
     # -------------------------
-    # Tabs: Processes
+    # Dialogs
     # -------------------------
-
     def _choose_columns_dialog(self, title: str, cfg_key: str, all_cols: list, apply_cb):
         win = tk.Toplevel(self)
         win.title(title)
@@ -144,9 +144,6 @@ class CoreMixin:
 
         inner = ttk.Frame(canvas)
         canvas.create_window((0, 0), window=inner, anchor="nw")
-    # ------------------------------------------------------------
-    # [P1][CONFIG] Open config dialog / update runtime cfg
-    # ------------------------------------------------------------
 
         def _on_config(e=None):
             canvas.configure(scrollregion=canvas.bbox("all"))
@@ -170,21 +167,16 @@ class CoreMixin:
         ttk.Button(btns, text="OK", command=save_and_close).pack(side="right", padx=6)
         ttk.Button(btns, text="Cancel", command=win.destroy).pack(side="right")
 
-    # -------------------------
-    # Main loop tick
-    # -------------------------
     # ------------------------------------------------------------
     # [P1][REFRESH LOOP] Tkinter after() tick scheduler
     # ------------------------------------------------------------
-
     def _tick(self):
         self.refresh_all(force=False)
         self.after(self.cfg.get("refresh_ms", 2000), self._tick)
+
     # ------------------------------------------------------------
     # [P1][REFRESH] Refresh current tab / all tabs (manual/auto)
     # ------------------------------------------------------------
-
-
     def refresh_all(self, force=False):
         # cập nhật tab đang xem trước để mượt hơn, nhưng vẫn có status + perf
         self.refresh_performance()
@@ -209,13 +201,9 @@ class CoreMixin:
             # perf tab already refreshed
             pass
 
-    # -------------------------
-    # Collect processes
-    # -------------------------
     # ------------------------------------------------------------
     # [P1][UI] Status bar update
     # ------------------------------------------------------------
-
     def refresh_statusbar(self):
         try:
             cpu = psutil.cpu_percent(interval=None)
@@ -228,17 +216,14 @@ class CoreMixin:
     # -------------------------
     # Menu callbacks
     # -------------------------
-
     def _set_refresh_ms(self, ms: int):
         self.cfg["refresh_ms"] = int(ms)
         save_cfg(self.cfg)
-
 
     def _toggle_always_on_top(self):
         self.cfg["always_on_top"] = bool(self.var_always_on_top.get())
         self.wm_attributes("-topmost", bool(self.cfg["always_on_top"]))
         save_cfg(self.cfg)
-
 
     def _toggle_show_system(self):
         self.cfg["show_system_processes"] = bool(self.var_show_system.get())
@@ -246,7 +231,6 @@ class CoreMixin:
         self.refresh_processes(force=True)
         self.refresh_details(force=True)
         self.refresh_users(force=True)
-
 
     def _about(self):
         messagebox.showinfo(
@@ -257,7 +241,6 @@ class CoreMixin:
             "Mục tiêu: giống Task Manager Windows nhất có thể trên Linux."
         )
 
-
     def _on_close(self):
         try:
             self.cfg["geometry"] = self.geometry()
@@ -265,9 +248,3 @@ class CoreMixin:
             pass
         save_cfg(self.cfg)
         self.destroy()
-
-
-if __name__ == "__main__":
-    app = TaskManagerApp()
-    app.mainloop()
-
