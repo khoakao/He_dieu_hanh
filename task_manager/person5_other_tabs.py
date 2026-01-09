@@ -6,6 +6,7 @@ import re
 import time
 import signal
 import subprocess
+import shutil
 from collections import deque, defaultdict
 from pathlib import Path
 
@@ -14,33 +15,26 @@ from tkinter import ttk, messagebox, simpledialog, filedialog
 
 import psutil
 
+# Các import nội bộ từ project của bạn
 from .config import DEFAULT_CFG, HISTORY_LEN, USER_AUTOSTART_DIR, SYS_AUTOSTART_DIRS, PROC_STATUS_LABEL
 from .utils import fmt_bytes, safe_call, is_system_process, dt_from_ts, readlink_exe, run_cmd
 from .models import ProcRow
+
 # ============================================================
 # PERSON 5 — PERFORMANCE + USERS + SERVICES + STARTUP
-#   - Performance: charts + refresh
-#   - Users: list sessions/users
-#   - Services: systemctl list + actions
-#   - Startup: .desktop parsing + enable/disable (user scope)
-# Deliverable: data sources (psutil/systemctl/.desktop) + limitations
 # ============================================================
-
-
 
 class OtherTabsMixin:
     # ------------------------------------------------------------
     # [P5][UI] Build Performance tab (charts area)
     # ------------------------------------------------------------
     def _build_performance_tab(self, parent):
-        # summary top
         top = ttk.Frame(parent)
         top.pack(fill="x", padx=10, pady=8)
 
         self.perf_summary = tk.StringVar(value="")
         ttk.Label(top, textvariable=self.perf_summary, anchor="w", font=("Consolas", 10)).pack(fill="x")
 
-        # charts area
         grid = ttk.Frame(parent)
         grid.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -69,10 +63,6 @@ class OtherTabsMixin:
     # -------------------------
     # Tabs: Users
     # -------------------------
-    # ------------------------------------------------------------
-    # [P5][UI] Build Users tab
-    # ------------------------------------------------------------
-
     def _build_users_tab(self, parent):
         top = ttk.Frame(parent)
         top.pack(fill="x", padx=10, pady=8)
@@ -97,10 +87,6 @@ class OtherTabsMixin:
     # -------------------------
     # Tabs: Services
     # -------------------------
-    # ------------------------------------------------------------
-    # [P5][UI] Build Services tab
-    # ------------------------------------------------------------
-
     def _build_services_tab(self, parent):
         top = ttk.Frame(parent)
         top.pack(fill="x", padx=10, pady=8)
@@ -116,6 +102,9 @@ class OtherTabsMixin:
         cols = ("unit", "load", "active", "sub", "description")
         self.services_tree = ttk.Treeview(parent, columns=cols, show="headings", height=20)
         self.services_tree.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+        
+        # --- FEATURE MỚI: Click đúp để Restart nhanh ---
+        self.services_tree.bind("<Double-1>", lambda e: self._service_action("restart"))
 
         headings = {
             "unit": "Service", "load": "Load", "active": "Active",
@@ -131,17 +120,13 @@ class OtherTabsMixin:
         ysb.place(in_=self.services_tree, relx=1.0, rely=0, relheight=1.0, anchor="ne")
 
         self.services_hint = tk.StringVar(
-            value="Tip: Services tab uses systemctl (systemd). Một số thao tác cần quyền root."
+            value="Tip: Click đúp vào dòng để Restart nhanh. Start/Stop cần quyền root."
         )
         ttk.Label(parent, textvariable=self.services_hint, anchor="w").pack(fill="x", padx=10, pady=(0, 6))
 
     # -------------------------
     # Tabs: Startup
     # -------------------------
-    # ------------------------------------------------------------
-    # [P5][UI] Build Startup tab
-    # ------------------------------------------------------------
-
     def _build_startup_tab(self, parent):
         top = ttk.Frame(parent)
         top.pack(fill="x", padx=10, pady=8)
@@ -173,15 +158,10 @@ class OtherTabsMixin:
         )
         ttk.Label(parent, textvariable=self.startup_hint, anchor="w").pack(fill="x", padx=10, pady=(0, 6))
 
-    # -------------------------
-    # Generic: choose columns dialog
-    # -------------------------
     # ------------------------------------------------------------
     # [P5][LOGIC] Refresh performance metrics + chart buffers
     # ------------------------------------------------------------
-
     def refresh_performance(self):
-        # CPU
         cpu = psutil.cpu_percent(interval=None)
         vm = psutil.virtual_memory()
         sm = psutil.swap_memory()
@@ -190,7 +170,6 @@ class OtherTabsMixin:
         self.mem_hist.append(vm.percent)
         self.swap_hist.append(sm.percent)
 
-        # network KB/s
         try:
             now = time.time()
             net = psutil.net_io_counters()
@@ -210,22 +189,18 @@ class OtherTabsMixin:
             self.net_sent_hist.append(0.0)
             self.net_recv_hist.append(0.0)
 
-        # summary text
         self.perf_summary.set(
             f"CPU: {cpu:.1f}%    "
             f"Memory: {vm.percent:.1f}% ({fmt_bytes(vm.used)} / {fmt_bytes(vm.total)})    "
             f"Swap: {sm.percent:.1f}% ({fmt_bytes(sm.used)} / {fmt_bytes(sm.total)})"
         )
 
-        # Draw charts with colors
-        # CPU: Blue (#0078d7 or similar), Memory: Purple/Pink, Swap: Orange, Net: Green
         self._draw_line_chart(self.canvas_cpu, list(self.cpu_hist), 0, 100, suffix="%", dual=False, line_color="#0078d7")
         self._draw_line_chart(self.canvas_mem, list(self.mem_hist), 0, 100, suffix="%", dual=False, line_color="#800080")
         self._draw_line_chart(self.canvas_swap, list(self.swap_hist), 0, 100, suffix="%", dual=False, line_color="#ff8c00")
         self._draw_line_chart(self.canvas_net, list(self.net_recv_hist), 0, None, suffix=" KB/s",
                               dual=True, series2=list(self.net_sent_hist), label1="Recv", label2="Sent",
                               line_color="#009900", line_color2="#cc0000")
-
 
     def _draw_line_chart(self, canvas: tk.Canvas, series, y_min, y_max, suffix="", dual=False,
                          series2=None, label1="A", label2="B", line_color="black", line_color2="gray"):
@@ -234,7 +209,6 @@ class OtherTabsMixin:
         h = max(1, int(canvas.winfo_height()))
         pad = 10
 
-        # background grid
         for i in range(6):
             y = pad + i * (h - 2 * pad) / 5
             canvas.create_line(pad, y, w - pad, y, dash=(2, 2), fill="#d0d0d0")
@@ -249,7 +223,6 @@ class OtherTabsMixin:
 
         def to_xy(i, v, n):
             x = pad + i * (w - 2 * pad) / max(1, n - 1)
-            # invert y
             yy = (v - y_min) / max(1e-6, (y_max - y_min))
             y = (h - pad) - yy * (h - 2 * pad)
             return x, y
@@ -273,19 +246,14 @@ class OtherTabsMixin:
             if len(pts2) >= 4:
                 canvas.create_line(*pts2, smooth=True, width=2, dash=(4, 2), fill=line_color2)
 
-        # label max
         canvas.create_text(pad + 2, pad + 2, anchor="nw", text=f"max {y_max:.1f}{suffix}", fill="#333333", font=("Arial", 9))
         if dual:
             canvas.create_text(w - pad - 2, pad + 2, anchor="ne", 
                                text=f"{label1}: solid, {label2}: dash", fill="#333333", font=("Arial", 9))
 
-    # -------------------------
-    # Users refresh
-    # -------------------------
     # ------------------------------------------------------------
     # [P5][LOGIC] Refresh users list (psutil.users)
     # ------------------------------------------------------------
-
     def refresh_users(self, force=False):
         rows = self._collect_process_rows()
 
@@ -304,71 +272,121 @@ class OtherTabsMixin:
                 user, d["count"], f"{d['cpu']:.1f}", fmt_bytes(d["mem"])
             ))
 
-    # -------------------------
-    # Services refresh + action
-    # -------------------------
     # ------------------------------------------------------------
     # [P5][LOGIC] Refresh services list (systemctl)
     # ------------------------------------------------------------
-
     def refresh_services(self, force=False):
-        # detect systemctl
-        rc, out, err = safe_call(["which", "systemctl"], timeout=2)
-        if rc != 0:
-            self.services_hint.set("systemctl không có trên máy này (không dùng systemd).")
-            for iid in self.services_tree.get_children(""):
-                self.services_tree.delete(iid)
+        # 1. Tìm đường dẫn systemctl
+        sys_cmd = shutil.which("systemctl")
+        if not sys_cmd:
+            for p in ["/bin/systemctl", "/usr/bin/systemctl", "/sbin/systemctl"]:
+                if os.path.exists(p):
+                    sys_cmd = p
+                    break
+        
+        if not sys_cmd:
+            self.services_hint.set("Lỗi: Không tìm thấy systemctl.")
+            self.services_tree.delete(*self.services_tree.get_children())
             return
 
-        rc, out, err = safe_call(["systemctl", "list-units", "--type=service", "--all", "--no-legend", "--no-pager"], timeout=5)
-        if rc != 0:
-            self.services_hint.set(f"Không đọc được services: {err.strip() or out.strip()}")
+        # =========================================================
+        # FIX QUAN TRỌNG: Lưu lại dòng đang chọn trước khi refresh
+        # =========================================================
+        saved_selection = self.services_tree.selection()
+        saved_id = saved_selection[0] if saved_selection else None
+
+        # 2. Chạy lệnh
+        try:
+            cmd = [sys_cmd, "list-units", "--type=service", "--all", "--no-legend", "--no-pager", "--plain"]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            
+            if result.returncode != 0:
+                self.services_hint.set(f"Lỗi: {result.stderr.strip() or 'Systemd error'}")
+                return
+            out = result.stdout
+        except Exception as e:
+            self.services_hint.set(f"Lỗi Python: {str(e)}")
             return
-        self.services_hint.set("Tip: Start/Stop/Restart có thể cần quyền root (sudo).")
 
-        for iid in self.services_tree.get_children(""):
-            self.services_tree.delete(iid)
+        # 3. Parse dữ liệu
+        self.services_tree.delete(*self.services_tree.get_children())
+        
+        count = 0
+        lines = out.splitlines()
+        
+        for line in lines:
+            line = line.strip()
+            if not line: continue
+            
+            parts = line.split()
+            # Bỏ qua ký tự ● nếu có
+            if parts[0] in ['●', '*', '-']:
+                parts = parts[1:]
+            
+            if len(parts) < 4: continue
 
-        for line in out.splitlines():
-            line = line.rstrip()
-            if not line:
-                continue
-            parts = line.split(None, 4)
-            if len(parts) < 5:
-                continue
-            unit, load, active, sub, desc = parts
-            self.services_tree.insert("", "end", iid=unit, values=(unit, load, active, sub, desc))
+            unit = parts[0]
+            load = parts[1]
+            active = parts[2]
+            sub = parts[3]
+            desc = " ".join(parts[4:]) if len(parts) > 4 else ""
+            
+            try:
+                self.services_tree.insert("", "end", iid=unit, values=(unit, load, active, sub, desc))
+                count += 1
+            except tk.TclError:
+                pass
 
+        # =========================================================
+        # FIX QUAN TRỌNG: Khôi phục lại dòng đã chọn
+        # =========================================================
+        if saved_id and self.services_tree.exists(saved_id):
+            self.services_tree.selection_set(saved_id)
+            self.services_tree.see(saved_id) # Tự động cuộn tới dòng đó
+
+        if count > 0:
+            self.services_hint.set(f"Đã tải {count} services từ {sys_cmd}. Click đúp để Restart.")
+        else:
+            self.services_hint.set(f"Không có service nào.")
 
     def _selected_service(self):
         sel = self.services_tree.selection()
         if not sel:
             return None
         return sel[0]
-    # ------------------------------------------------------------
-    # [P5][ACTION] Service start/stop/restart (systemctl)
-    # ------------------------------------------------------------
 
-
+    # ------------------------------------------------------------
+    # [P5][ACTION] Service start/stop/restart
+    # ------------------------------------------------------------
     def _service_action(self, action: str):
         unit = self._selected_service()
         if not unit:
             return
-        if not messagebox.askyesno("Confirm", f"{action.title()} service {unit}?"):
+            
+        if not messagebox.askyesno("Confirm", f"Bạn có chắc muốn {action.upper()} service: {unit}?"):
             return
-        # best-effort: try systemctl directly
-        rc, out, err = safe_call(["systemctl", action, unit], timeout=8)
-        if rc != 0:
-            messagebox.showerror("Service action failed", (err or out or "").strip() + "\n\nTip: thử chạy app với sudo.")
-        self.refresh_services(force=True)
+        
+        sys_cmd = shutil.which("systemctl") or "systemctl"
+        cmd = [sys_cmd, action, unit]
+        print(f"DEBUG: Executing: {' '.join(cmd)}")
 
-    # -------------------------
-    # Startup refresh + actions
-    # -------------------------
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+            if result.returncode != 0:
+                messagebox.showerror("Lỗi", f"Lệnh thất bại:\n{result.stderr.strip()}")
+            else:
+                self.services_hint.set(f"Đã gửi lệnh {action} tới {unit}...")
+        except Exception as e:
+            messagebox.showerror("Lỗi Code", str(e))
+        
+        # Refresh lại sau 1s và 3s để cập nhật trạng thái
+        # Nhờ logic lưu selection ở trên, dòng service sẽ không bị mất chọn
+        self.services_tree.after(1000, lambda: self.refresh_services(force=True))
+        self.services_tree.after(3000, lambda: self.refresh_services(force=True))
+
     # ------------------------------------------------------------
     # [P5][LOGIC] Refresh startup entries (.desktop in autostart dirs)
     # ------------------------------------------------------------
-
     def refresh_startup(self, force=False):
         entries = []
 
@@ -422,18 +440,15 @@ class OtherTabsMixin:
         for i, row in enumerate(entries):
             self.startup_tree.insert("", "end", iid=str(i), values=row)
 
-
     def _selected_startup_row(self):
         sel = self.startup_tree.selection()
         if not sel:
             return None
         return self.startup_tree.item(sel[0]).get("values", None)
 
-
     def open_autostart_folder(self):
         USER_AUTOSTART_DIR.mkdir(parents=True, exist_ok=True)
-        safe_call(["xdg-open", str(USER_AUTOSTART_DIR)], timeout=2)
-
+        safe_call(["xdg-open", str(USER_AUTOSTART_DIR)])
 
     def open_startup_file(self):
         row = self._selected_startup_row()
@@ -441,14 +456,13 @@ class OtherTabsMixin:
             return
         path = row[4]
         try:
-            safe_call(["xdg-open", path], timeout=2)
+            safe_call(["xdg-open", path])
         except Exception as e:
             messagebox.showerror("Open file", str(e))
+
     # ------------------------------------------------------------
     # [P5][ACTION] Enable/disable startup (user scope)
     # ------------------------------------------------------------
-
-
     def toggle_startup_user(self):
         row = self._selected_startup_row()
         if not row:
@@ -494,8 +508,3 @@ class OtherTabsMixin:
             self.refresh_startup(force=True)
         except Exception as e:
             messagebox.showerror("Startup", str(e))
-
-    # -------------------------
-    # Status bar update
-    # -------------------------
-
