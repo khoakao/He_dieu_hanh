@@ -57,12 +57,18 @@ Dự án được phát triển theo mô hình module hóa, với sự phân cô
 ### 1. Yêu cầu hệ thống
 * Hệ điều hành: Linux (Ubuntu, Debian, Fedora, Arch, etc.)
 * Python: 3.6 trở lên.
-* Thư viện hệ thống: `python3-tk` (Thường đã có sẵn, nếu chưa hãy cài đặt qua apt/dnf/pacman).
 
-### 2. Cài đặt thư viện Python
+### 2. Cài đặt thư viện giao diện Tkinter (Bắt buộc)
+Trên Linux, thư viện giao diện Tkinter thường không được cài mặc định cùng Python. Bạn cần cài nó thủ công qua Terminal tùy theo bản phân phối Linux đang sử dụng:
+
+* **Ubuntu / Debian / Linux Mint / Kali:**
+  ```bash
+  sudo apt-get update
+  sudo apt-get install python3-tk
+
+### Cài đặt thư viện Python
 Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
 
-```bash
+  ```bash
+  sudo pip install psutil
 
-# Cài đặt dependencies
-pip install psutil
