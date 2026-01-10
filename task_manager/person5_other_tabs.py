@@ -2,23 +2,20 @@
 from __future__ import annotations
 
 import os
-import re
 import time
-import signal
 import subprocess
 import shutil
 from collections import deque, defaultdict
 from pathlib import Path
 
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog, filedialog
+from tkinter import ttk, messagebox
 
 import psutil
 
 # Các import nội bộ từ project của bạn
-from .config import DEFAULT_CFG, HISTORY_LEN, USER_AUTOSTART_DIR, SYS_AUTOSTART_DIRS, PROC_STATUS_LABEL
-from .utils import fmt_bytes, safe_call, is_system_process, dt_from_ts, readlink_exe, run_cmd
-from .models import ProcRow
+from .config import USER_AUTOSTART_DIR, SYS_AUTOSTART_DIRS
+from .utils import fmt_bytes, safe_call
 
 # ============================================================
 # PERSON 5 — PERFORMANCE + USERS + SERVICES + STARTUP
@@ -26,7 +23,30 @@ from .models import ProcRow
 
 class OtherTabsMixin:
     # ------------------------------------------------------------
-    # [P5][UI] Build Performance tab (charts area)
+    # Helper: Mở file/folder an toàn và báo lỗi nếu thất bại
+    # ------------------------------------------------------------
+    def _open_resource_safe(self, path_str):
+        """Hàm mở file hoặc folder bằng trình mặc định của hệ thống (xdg-open)."""
+        if not os.path.exists(path_str):
+            messagebox.showerror("Lỗi", f"Đường dẫn không tồn tại:\n{path_str}")
+            return
+
+        try:
+            # Sử dụng xdg-open để mở file/folder theo mặc định của Linux
+            # stderr=subprocess.PIPE để bắt lỗi nếu có vấn đề
+            subprocess.Popen(
+                ["xdg-open", str(path_str)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True
+            )
+        except FileNotFoundError:
+            messagebox.showerror("Lỗi hệ thống", "Không tìm thấy lệnh 'xdg-open'.\nHãy cài đặt gói xdg-utils (sudo apt install xdg-utils).")
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Không thể mở file/folder:\n{str(e)}")
+
+    # ------------------------------------------------------------
+    # [P5][UI] Build Performance tab
     # ------------------------------------------------------------
     def _build_performance_tab(self, parent):
         top = ttk.Frame(parent)
@@ -103,7 +123,7 @@ class OtherTabsMixin:
         self.services_tree = ttk.Treeview(parent, columns=cols, show="headings", height=20)
         self.services_tree.pack(fill="both", expand=True, padx=10, pady=(0, 10))
         
-        # --- FEATURE MỚI: Click đúp để Restart nhanh ---
+        # Click đúp để Restart
         self.services_tree.bind("<Double-1>", lambda e: self._service_action("restart"))
 
         headings = {
@@ -132,12 +152,16 @@ class OtherTabsMixin:
         top.pack(fill="x", padx=10, pady=8)
 
         ttk.Button(top, text="Refresh Now", command=lambda: self.refresh_startup(force=True)).pack(side="left")
+        
+        # --- FIX: Gọi hàm mở folder ---
         ttk.Button(top, text="Open autostart folder", command=self.open_autostart_folder).pack(side="left", padx=8)
 
         btns = ttk.Frame(top)
         btns.pack(side="right")
         ttk.Button(btns, text="Enable/Disable (user)", command=self.toggle_startup_user).pack(side="right", padx=4)
-        ttk.Button(btns, text="Open file", command=self.open_startup_file).pack(side="right", padx=4)
+        
+        # --- FIX: Gọi hàm mở file ---
+        ttk.Button(top, text="Open file", command=self.open_startup_file).pack(side="right", padx=4)
 
         cols = ("name", "enabled", "scope", "exec", "path")
         self.startup_tree = ttk.Treeview(parent, columns=cols, show="headings", height=20)
@@ -159,7 +183,7 @@ class OtherTabsMixin:
         ttk.Label(parent, textvariable=self.startup_hint, anchor="w").pack(fill="x", padx=10, pady=(0, 6))
 
     # ------------------------------------------------------------
-    # [P5][LOGIC] Refresh performance metrics + chart buffers
+    # [P5][LOGIC] Refresh performance
     # ------------------------------------------------------------
     def refresh_performance(self):
         cpu = psutil.cpu_percent(interval=None)
@@ -252,11 +276,10 @@ class OtherTabsMixin:
                                text=f"{label1}: solid, {label2}: dash", fill="#333333", font=("Arial", 9))
 
     # ------------------------------------------------------------
-    # [P5][LOGIC] Refresh users list (psutil.users)
+    # [P5][LOGIC] Users
     # ------------------------------------------------------------
     def refresh_users(self, force=False):
         rows = self._collect_process_rows()
-
         agg = defaultdict(lambda: {"cpu": 0.0, "mem": 0, "count": 0})
         for r in rows:
             u = r.user or "(unknown)"
@@ -273,10 +296,9 @@ class OtherTabsMixin:
             ))
 
     # ------------------------------------------------------------
-    # [P5][LOGIC] Refresh services list (systemctl)
+    # [P5][LOGIC] Services
     # ------------------------------------------------------------
     def refresh_services(self, force=False):
-        # 1. Tìm đường dẫn systemctl
         sys_cmd = shutil.which("systemctl")
         if not sys_cmd:
             for p in ["/bin/systemctl", "/usr/bin/systemctl", "/sbin/systemctl"]:
@@ -289,13 +311,9 @@ class OtherTabsMixin:
             self.services_tree.delete(*self.services_tree.get_children())
             return
 
-        # =========================================================
-        # FIX QUAN TRỌNG: Lưu lại dòng đang chọn trước khi refresh
-        # =========================================================
         saved_selection = self.services_tree.selection()
         saved_id = saved_selection[0] if saved_selection else None
 
-        # 2. Chạy lệnh
         try:
             cmd = [sys_cmd, "list-units", "--type=service", "--all", "--no-legend", "--no-pager", "--plain"]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
@@ -308,18 +326,15 @@ class OtherTabsMixin:
             self.services_hint.set(f"Lỗi Python: {str(e)}")
             return
 
-        # 3. Parse dữ liệu
         self.services_tree.delete(*self.services_tree.get_children())
         
         count = 0
         lines = out.splitlines()
-        
         for line in lines:
             line = line.strip()
             if not line: continue
             
             parts = line.split()
-            # Bỏ qua ký tự ● nếu có
             if parts[0] in ['●', '*', '-']:
                 parts = parts[1:]
             
@@ -337,12 +352,9 @@ class OtherTabsMixin:
             except tk.TclError:
                 pass
 
-        # =========================================================
-        # FIX QUAN TRỌNG: Khôi phục lại dòng đã chọn
-        # =========================================================
         if saved_id and self.services_tree.exists(saved_id):
             self.services_tree.selection_set(saved_id)
-            self.services_tree.see(saved_id) # Tự động cuộn tới dòng đó
+            self.services_tree.see(saved_id)
 
         if count > 0:
             self.services_hint.set(f"Đã tải {count} services từ {sys_cmd}. Click đúp để Restart.")
@@ -355,9 +367,6 @@ class OtherTabsMixin:
             return None
         return sel[0]
 
-    # ------------------------------------------------------------
-    # [P5][ACTION] Service start/stop/restart
-    # ------------------------------------------------------------
     def _service_action(self, action: str):
         unit = self._selected_service()
         if not unit:
@@ -368,7 +377,6 @@ class OtherTabsMixin:
         
         sys_cmd = shutil.which("systemctl") or "systemctl"
         cmd = [sys_cmd, action, unit]
-        print(f"DEBUG: Executing: {' '.join(cmd)}")
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
@@ -379,13 +387,11 @@ class OtherTabsMixin:
         except Exception as e:
             messagebox.showerror("Lỗi Code", str(e))
         
-        # Refresh lại sau 1s và 3s để cập nhật trạng thái
-        # Nhờ logic lưu selection ở trên, dòng service sẽ không bị mất chọn
         self.services_tree.after(1000, lambda: self.refresh_services(force=True))
         self.services_tree.after(3000, lambda: self.refresh_services(force=True))
 
     # ------------------------------------------------------------
-    # [P5][LOGIC] Refresh startup entries (.desktop in autostart dirs)
+    # [P5][LOGIC] Startup
     # ------------------------------------------------------------
     def refresh_startup(self, force=False):
         entries = []
@@ -414,8 +420,7 @@ class OtherTabsMixin:
         if USER_AUTOSTART_DIR.exists():
             for p in USER_AUTOSTART_DIR.glob("*.desktop"):
                 d = parse_desktop(p)
-                if not d:
-                    continue
+                if not d: continue
                 hidden = d.get("Hidden", "false").lower() == "true"
                 enabled = (not hidden)
                 name = d.get("Name", p.stem)
@@ -426,8 +431,7 @@ class OtherTabsMixin:
             if ddir.exists():
                 for p in ddir.glob("*.desktop"):
                     d = parse_desktop(p)
-                    if not d:
-                        continue
+                    if not d: continue
                     hidden = d.get("Hidden", "false").lower() == "true"
                     enabled = (not hidden)
                     name = d.get("Name", p.stem)
@@ -446,23 +450,23 @@ class OtherTabsMixin:
             return None
         return self.startup_tree.item(sel[0]).get("values", None)
 
+    # -------------------------------------------------------
+    # FIX: Cập nhật hàm Open folder sử dụng phương pháp an toàn
+    # -------------------------------------------------------
     def open_autostart_folder(self):
         USER_AUTOSTART_DIR.mkdir(parents=True, exist_ok=True)
-        safe_call(["xdg-open", str(USER_AUTOSTART_DIR)])
+        self._open_resource_safe(str(USER_AUTOSTART_DIR))
 
+    # -------------------------------------------------------
+    # FIX: Cập nhật hàm Open file sử dụng phương pháp an toàn
+    # -------------------------------------------------------
     def open_startup_file(self):
         row = self._selected_startup_row()
         if not row:
             return
         path = row[4]
-        try:
-            safe_call(["xdg-open", path])
-        except Exception as e:
-            messagebox.showerror("Open file", str(e))
+        self._open_resource_safe(path)
 
-    # ------------------------------------------------------------
-    # [P5][ACTION] Enable/disable startup (user scope)
-    # ------------------------------------------------------------
     def toggle_startup_user(self):
         row = self._selected_startup_row()
         if not row:
