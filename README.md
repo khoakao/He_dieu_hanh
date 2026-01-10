@@ -67,9 +67,10 @@ Trên Linux, thư viện giao diện Tkinter thường không được cài mặ
   sudo apt-get install python3-tk
 
 ### Cài đặt thư viện Python
-Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
+cài đặt thư viện phụ thuộc (`psutil`):
   ```bash
-  sudo pip install psutil
+  sudo apt install python3-pip
+  sudo apt-get install python3-psutil
 
 ```
 ### 3.Chay ung dung:
