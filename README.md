@@ -1,93 +1,71 @@
+# Linux Task Manager (Python + Tkinter)
 
-## Tóm tắt chức năng
+Một ứng dụng **Task Manager** dành cho Linux được viết bằng **Python** và thư viện giao diện **Tkinter**, sử dụng **psutil** để thu thập thông tin hệ thống. Ứng dụng này mô phỏng giao diện và chức năng của Windows Task Manager, giúp người dùng quản lý tiến trình, hiệu năng và dịch vụ hệ thống một cách trực quan.
 
-Ứng dụng **Task Manager cho Linux** (Python + Tkinter + psutil) mô phỏng Task Manager Windows, gồm các nhóm chức năng chính:
-
-* **Quản lý tiến trình (Processes/Details):** hiển thị danh sách process (PID/Name/User/CPU/RAM/Status/Command…), hỗ trợ **search/lọc**, **sort theo cột**, **ẩn/hiện cột**, **auto refresh**, và **context menu**.
-* **Thao tác với process:** **End task (SIGTERM)**, **Kill (SIGKILL)**, **đổi priority (nice)**, **set CPU affinity**, xem **Properties** và **mở thư mục executable**.
-* **Giám sát hiệu năng (Performance):** theo dõi **CPU/RAM/Swap/Network** theo thời gian thực (kèm đồ thị lịch sử).
-* **Thống kê người dùng (Users):** tổng hợp **số process/CPU/RAM** theo từng user.
-* **Dịch vụ hệ thống (Services):** liệt kê service (systemd) và thao tác **Start/Stop/Restart** (một số thao tác cần quyền sudo).
-* **Startup apps:** đọc `.desktop` từ autostart (user/system), hỗ trợ **enable/disable** (user scope), mở file/thư mục.
-* **Cấu hình & lưu trạng thái:** lưu `config.json` (refresh interval, always on top, show system processes, cấu hình cột, kích thước cửa sổ…).
+![Linux Task Manager](https://img.shields.io/badge/Platform-Linux-linux)
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
-## Phân công nhiệm vụ của từng thành viên
+## 📋 Tính năng chính
 
-### Đặng Thị Bích Phượng — Core / App Shell (`person1_core.py`)
+Ứng dụng bao gồm các nhóm chức năng chính:
 
-* Thiết kế **khung ứng dụng** (Notebook 6 tab + status bar).
-* Xây dựng **menu** và luồng cấu hình:
+1.  **Quản lý tiến trình (Processes/Details):**
+    * Hiển thị danh sách PID, Tên, User, CPU%, RAM, Trạng thái, Command line...
+    * Hỗ trợ **Search/Lọc**, **Sort** theo cột, **Ẩn/Hiện cột**.
+    * Tự động làm mới (Auto refresh) có thể cấu hình.
+2.  **Thao tác với Process:**
+    * **End task** (Gửi tín hiệu SIGTERM).
+    * **Kill process** (Gửi tín hiệu SIGKILL - buộc dừng).
+    * Thay đổi độ ưu tiên (**Set Priority/Nice**).
+    * Thiết lập **CPU Affinity** (gán CPU cụ thể cho tiến trình).
+    * Xem **Properties** chi tiết và mở thư mục chứa file chạy (`xdg-open`).
+3.  **Giám sát hiệu năng (Performance):**
+    * Biểu đồ thời gian thực cho **CPU, RAM, Swap, Network**.
+    * Lưu lịch sử hiển thị (History graph).
+4.  **Thống kê người dùng (Users):**
+    * Tổng hợp tài nguyên (CPU/RAM/Số tiến trình) đang sử dụng bởi từng User.
+5.  **Dịch vụ hệ thống (Services):**
+    * Liệt kê các Systemd Service.
+    * Thao tác **Start/Stop/Restart** (Lưu ý: Cần quyền root/sudo cho các thao tác này).
+6.  **Startup Apps:**
+    * Quản lý các file `.desktop` trong thư mục autostart (User & System).
+    * **Enable/Disable** ứng dụng khởi động cùng hệ thống (User scope).
+7.  **Cấu hình:**
+    * Lưu trạng thái (kích thước cửa sổ, cột hiển thị, tốc độ update...) vào file JSON.
 
-  * Always on top, Show system processes, Update speed.
-  * Dialog chọn cột hiển thị.
-* Xây dựng **refresh loop** (`_tick`, `refresh_all`) và cập nhật status bar.
-* Lưu/đọc cấu hình và trạng thái cửa sổ khi thoát.
+---
 
-### Vũ Thị Hải Anh — Processes Tab (`person2_processes.py`)
+## 👥 Phân công nhiệm vụ (Team Roles)
 
-* UI tab Processes: Search, Auto refresh, Refresh Now, bảng TreeView.
-* Logic:
+Dự án được phát triển theo mô hình module hóa, với sự phân công cụ thể như sau:
 
-  * Collect process từ `psutil.process_iter()`
-  * Format dữ liệu (CPU%, RSS, start time…)
-  * Lọc theo keyword và ẩn process hệ thống (theo config)
-  * Sort theo cột
-* Context menu + binding double click.
+| Thành viên | Module / File | Nhiệm vụ chi tiết |
+| :--- | :--- | :--- |
+| **Đặng Thị Bích Phượng** | `person1_core.py` | **Core / App Shell**<br>- Thiết kế khung ứng dụng (Notebook 6 tab, Status bar).<br>- Xây dựng Menu bar (Options, View, Help).<br>- Xử lý luồng Refresh Loop (`_tick`) toàn bộ ứng dụng.<br>- Quản lý lưu/đọc cấu hình (`config.json`) và trạng thái cửa sổ. |
+| **Vũ Thị Hải Anh** | `person2_processes.py` | **Processes Tab**<br>- UI & Logic tab Processes.<br>- Thu thập dữ liệu từ `psutil`, format CPU/RAM.<br>- Xử lý Search/Filter và ẩn process hệ thống.<br>- Sort dữ liệu theo cột.<br>- Context menu và các binding sự kiện. |
+| **Nguyễn Thị Nhật Lệ** | `person3_details.py` | **Details Tab**<br>- UI & Logic tab Details (TreeView độc lập).<br>- Cơ chế Sort riêng biệt cho tab Details.<br>- Quản lý ẩn/hiện cột chi tiết theo cấu hình.<br>- Refresh dữ liệu sử dụng collector chung. |
+| **Trần Bảo Nam** | `person4_actions.py` | **Actions & Properties**<br>- Xử lý logic End Task (SIGTERM), Kill (SIGKILL).<br>- Logic Set Priority (Nice) và CPU Affinity.<br>- Dialog hiển thị Properties chi tiết.<br>- Xử lý các ngoại lệ (Permission Denied, NoSuchProcess). |
+| **Cao Hữu Hà Khoa** | `person5_other_tabs.py` | **Performance, Users, Services, Startup**<br>- **Perf:** Vẽ biểu đồ Canvas (CPU/RAM/Net) + Lịch sử.<br>- **Users:** Thống kê tài nguyên theo User.<br>- **Services:** Quản lý Systemd units (Start/Stop/Restart).<br>- **Startup:** Quản lý file `.desktop`, toggle enable/disable. |
 
-### Nguyễn Thị Nhật Lệ — Details Tab (`person3_details.py`)
+---
 
-* UI tab Details + TreeView riêng.
-* Cơ chế:
+## 🛠️ Hướng dẫn Cài đặt & Chạy (Development)
 
-  * Sort theo cột (độc lập tab Processes)
-  * Ẩn/hiện cột Details theo config riêng
-* Refresh danh sách Details dựa trên collector dùng chung.
+### 1. Yêu cầu hệ thống
+* Hệ điều hành: Linux (Ubuntu, Debian, Fedora, Arch, etc.)
+* Python: 3.6 trở lên.
+* Thư viện hệ thống: `python3-tk` (Thường đã có sẵn, nếu chưa hãy cài đặt qua apt/dnf/pacman).
 
-### Trần Bảo Nam — Actions & Properties (`person4_actions.py`)
+### 2. Cài đặt thư viện Python
+Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
 
-* Xử lý thao tác trên tiến trình:
-
-  * End task (SIGTERM), Kill (SIGKILL)
-  * Set nice/priority
-  * Set CPU affinity
-  * Open executable folder
-* Thiết kế và hiển thị **Properties dialog** + copy nhanh thông tin.
-* Xử lý lỗi quyền (Permission denied), process biến mất (NoSuchProcess)…
-
-### Cao Hữu Hà Khoa — Performance + Users + Services + Startup (`person5_other_tabs.py`)
-
-* Tab Performance:
-
-  * Thu thập CPU/RAM/Swap/Network
-  * Vẽ biểu đồ line chart bằng Canvas + lưu lịch sử
-* Tab Users:
-  
-  * Gom nhóm thống kê CPU/RAM/process count theo user
-* Tab Services:
-
-  * Liệt kê services bằng systemctl
-  * Start/Stop/Restart
-* Tab Startup:
-
-  * Đọc `.desktop` trong autostart dirs
-  * Bật/tắt startup user bằng `Hidden=true/false`
-  * Mở folder/file bằng `xdg-open`
-
-## Run
-
-Install deps:
 ```bash
+# Khuyên dùng Virtual Environment (tùy chọn)
+python3 -m venv venv
+source venv/bin/activate
+
+# Cài đặt dependencies
 pip install psutil
-```
-
-Run:
-```bash
-python run.py
-# or
-python -m task_manager.main
-```
-
-Config is saved at:
-`~/.config/py_task_manager/config.json`
