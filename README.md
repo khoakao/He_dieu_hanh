@@ -1,19 +1,68 @@
-Linux Task Manager (Python Project)Linux Task Manager là ứng dụng quản lý hệ thống mô phỏng theo Task Manager của Windows, được xây dựng dành riêng cho môi trường Linux. Ứng dụng sử dụng ngôn ngữ Python, thư viện giao diện Tkinter và thư viện hệ thống psutil.Ứng dụng giúp người dùng theo dõi tài nguyên (CPU, RAM, Mạng), quản lý tiến trình, dịch vụ hệ thống và các ứng dụng khởi động.📋 Mục lụcYêu cầu hệ thốngHướng dẫn Cài đặt & Chạy (Source Code)Hướng dẫn "Dịch" ra file thực thi (.exe/binary)Hướng dẫn Sử dụng chi tiếtCấu trúc dự án & Phân côngKhắc phục lỗi thường gặp1. Yêu cầu hệ thốngĐể chạy được ứng dụng, máy tính của bạn cần đáp ứng:Hệ điều hành: Linux (Ubuntu, Linux Mint, Debian, Kali, Fedora, Arch...).Python: Phiên bản 3.6 trở lên (thường có sẵn trên Linux).Quyền hạn: Để thực hiện các thao tác can thiệp sâu (Kill process hệ thống, Quản lý Service), cần mật khẩu sudo.2. Hướng dẫn Cài đặt & Chạy (Source Code)Phần này dành cho lập trình viên hoặc người muốn chạy trực tiếp từ mã nguồn Python.Bước 1: Chuẩn bị thư mụcTạo một thư mục chứa dự án và copy file task_manager.py vào đó.Bashmkdir MyTaskManager
-cd MyTaskManager
-# (Copy file task_manager.py vào đây)
-Bước 2: Cài đặt Tkinter (Bắt buộc)Trên Linux, thư viện giao diện Tkinter thường không được cài mặc định cùng Python. Bạn cần cài nó thủ công qua Terminal:Ubuntu / Debian / Linux Mint / Kali:Bashsudo apt-get update
-sudo apt-get install python3-tk
-Fedora / CentOS:Bashsudo dnf install python3-tkinter
-Arch Linux:Bashsudo pacman -S tk
-Bước 3: Tạo môi trường ảo (Khuyên dùng)Để tránh xung đột thư viện với hệ thống, hãy tạo môi trường ảo (Virtual Environment):Bash# Tạo môi trường ảo tên là 'venv'
-python3 -m venv venv
+# Linux Task Manager (Python + Tkinter)
 
-# Kích hoạt môi trường
-source venv/bin/activate
-(Sau khi kích hoạt, đầu dòng lệnh sẽ hiện chữ (venv)).Bước 4: Cài đặt thư viện phụ thuộcỨng dụng cần thư viện psutil để đọc thông số phần cứng:Bashpip install psutil
-Bước 5: Chạy ứng dụngBashpython3 task_manager.py
-💡 Mẹo: Nếu muốn dùng full chức năng (Kill process của user khác, Quản lý Services), hãy chạy với quyền root. Lưu ý: sudo có thể không nhận môi trường ảo, nên bạn cần cài psutil cho toàn hệ thống (sudo pip3 install psutil) trước khi chạy:Bashsudo python3 task_manager.py
-3. Hướng dẫn "Dịch" ra file thực thi (.exe/binary)Bước này giúp bạn đóng gói code Python thành 1 file chạy duy nhất. Bạn có thể mang file này sang máy Linux khác để chạy mà không cần cài Python hay thư viện.Chúng ta sử dụng công cụ PyInstaller.Bước 1: Cài đặt PyInstallerTrong Terminal (đang kích hoạt venv):Bashpip install pyinstaller
-Bước 2: Thực hiện lệnh BuildChạy lệnh sau để đóng gói file task_manager.py:Bashpyinstaller --noconfirm --onefile --windowed --name "LinuxTaskManager" --clean task_manager.py
-Giải thích tham số:--onefile: Gom tất cả code và thư viện vào 1 file duy nhất.--windowed: Chạy chế độ cửa sổ, không hiện màn hình đen (console) phía sau.--name "LinuxTaskManager": Đặt tên cho file kết quả.--clean: Xóa cache cũ để tránh lỗi.Bước 3: Lấy file kết quảSau khi chạy xong (khoảng 1 phút), bạn sẽ thấy thư mục dist/. File chạy nằm trong đó:Đường dẫn: dist/LinuxTaskManagerBước 4: Chạy thửBash./dist/LinuxTaskManager
-4. Hướng dẫn Sử dụng chi tiếtGiao diện chia làm 6 Tab chính. Dưới đây là cách sử dụng từng Tab:🏠 Tab 1: Processes (Tiến trình)Quản lý các phần mềm đang chạy.Tìm kiếm: Nhập tên (vd: chrome) hoặc PID vào ô Search rồi nhấn Enter.Sắp xếp: Click vào tiêu đề cột (ví dụ click CPU %) để sắp xếp cao -> thấp.Menu chuột phải: Click phải vào một dòng để:End Task: Yêu cầu tắt phần mềm.Kill: Ép buộc tắt ngay lập tức (dùng khi bị treo).Set Priority: Chỉnh độ ưu tiên (Số càng nhỏ ưu tiên càng cao).Set Affinity: Chọn CPU cụ thể cho ứng dụng chạy.Auto Refresh: Bỏ tích ô này nếu muốn danh sách đứng yên để dễ soi.📈 Tab 2: Performance (Hiệu năng)Giám sát sức khỏe phần cứng theo thời gian thực (Real-time).CPU: Biểu đồ đường màu xanh dương.Memory (RAM): Biểu đồ màu tím.Network:Màu đỏ: Tốc độ Gửi (Sent).Màu xanh lá: Tốc độ Nhận (Received).Lưu ý: Biểu đồ lưu lại lịch sử 60 giây gần nhất.👥 Tab 3: UsersThống kê tài nguyên theo người dùng.Hữu ích khi máy có nhiều user đăng nhập cùng lúc.Hiển thị: Tổng số Process, Tổng % CPU, Tổng lượng RAM mà user đó chiếm dụng.ℹ️ Tab 4: Details (Chi tiết)Giống tab Processes nhưng hiển thị chi tiết kỹ thuật hơn.Hiển thị Command Line đầy đủ (đường dẫn file chạy và các tham số khởi động).Cột riêng biệt, có thể cấu hình hiển thị trong Menu View -> Select columns.⚙️ Tab 5: Services (Dịch vụ)Quản lý các dịch vụ nền (Systemd Daemons).Các cột: Unit (Tên), Load (Trạng thái nạp), Active (Đang chạy hay không), Sub (Trạng thái con).Thao tác: Chọn service -> Bấm nút Restart Service.Yêu cầu: Cần chạy app bằng sudo mới thao tác được.🚀 Tab 6: Startup (Khởi động)Quản lý ứng dụng chạy cùng hệ thống.User Scope: Ứng dụng cài riêng cho user hiện tại (~/.config/autostart).System Scope: Ứng dụng toàn hệ thống (/etc/xdg/autostart).Toggle (User): Chọn dòng thuộc User Scope -> Bấm nút để Bật/Tắt (Enable/Disable).Open Folder: Mở nhanh thư mục chứa file cấu hình khởi động.5. Cấu trúc dự án & Phân côngDự án bài tập lớn môn Lập trình Python / Hệ điều hành, được chia module như sau:Thành viênFile gốc (Modules)Vai trò & Nhiệm vụĐặng Thị Bích Phượngperson1_core.pyCore System (Trưởng nhóm)- Xây dựng khung giao diện chính (Notebook, Status bar).- Hệ thống Menu (File, Options, View).- Vòng lặp refresh chính (_tick).- Quản lý lưu/đọc cấu hình JSON.Vũ Thị Hải Anhperson2_processes.pyProcesses Tab- Thu thập dữ liệu tiến trình từ psutil.- Xử lý Logic tìm kiếm (Search) và Lọc (Filter).- Tính năng sắp xếp (Sort) và Auto Refresh.- Context Menu chuột phải.Nguyễn Thị Nhật Lệperson3_details.pyDetails Tab- Xây dựng bảng Details với các cột chuyên sâu.- Cơ chế hiển thị/ẩn cột linh hoạt.- Đồng bộ dữ liệu chi tiết với Core.Trần Bảo Namperson4_actions.pyAction Logic- Xử lý các lệnh hệ thống: Kill, Terminate.- Logic đổi độ ưu tiên (Renice) và CPU Affinity.- Hộp thoại Properties chi tiết.- Xử lý lỗi Permission Denied.Cao Hữu Hà Khoaperson5_other_tabs.pyUtilities (Tabs mở rộng)- Performance: Vẽ biểu đồ Canvas và lưu lịch sử.- Users: Logic gom nhóm thống kê theo User.- Services: Giao tiếp với lệnh systemctl.- Startup: Phân tích file .desktop và xử lý bật/tắt.(Lưu ý: Trong phiên bản task_manager.py hiện tại, tất cả các module trên đã được gộp chung vào một file để tiện chạy và đóng gói).6. Khắc phục lỗi thường gặpLỗi ModuleNotFoundError: No module named 'tkinter':Nguyên nhân: Chưa cài thư viện giao diện cho Python.Khắc phục: Xem lại Bước 2 phần Cài đặt.Lỗi Permission denied khi Kill process / Restart Service:Nguyên nhân: Bạn đang cố tắt ứng dụng của hệ thống hoặc người khác mà không có quyền Admin.Khắc phục: Tắt Task Manager đi và chạy lại bằng lệnh sudo python3 task_manager.py.Lỗi ModuleNotFoundError: No module named 'psutil':Nguyên nhân: Chưa cài thư viện psutil.Khắc phục: Chạy pip install psutil.Biểu đồ Performance không chạy ngay:Đợi khoảng 2 giây để ứng dụng lấy mẫu dữ liệu đầu tiên (để tính toán tốc độ mạng KB/s).
+Một ứng dụng **Task Manager** dành cho Linux được viết bằng **Python** và thư viện giao diện **Tkinter**, sử dụng **psutil** để thu thập thông tin hệ thống. Ứng dụng này mô phỏng giao diện và chức năng của Windows Task Manager, giúp người dùng quản lý tiến trình, hiệu năng và dịch vụ hệ thống một cách trực quan.
+
+![Linux Task Manager](https://img.shields.io/badge/Platform-Linux-linux)
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+---
+
+## 📋 Tính năng chính
+
+Ứng dụng bao gồm các nhóm chức năng chính:
+
+1.  **Quản lý tiến trình (Processes/Details):**
+    * Hiển thị danh sách PID, Tên, User, CPU%, RAM, Trạng thái, Command line...
+    * Hỗ trợ **Search/Lọc**, **Sort** theo cột, **Ẩn/Hiện cột**.
+    * Tự động làm mới (Auto refresh) có thể cấu hình.
+2.  **Thao tác với Process:**
+    * **End task** (Gửi tín hiệu SIGTERM).
+    * **Kill process** (Gửi tín hiệu SIGKILL - buộc dừng).
+    * Thay đổi độ ưu tiên (**Set Priority/Nice**).
+    * Thiết lập **CPU Affinity** (gán CPU cụ thể cho tiến trình).
+    * Xem **Properties** chi tiết và mở thư mục chứa file chạy (`xdg-open`).
+3.  **Giám sát hiệu năng (Performance):**
+    * Biểu đồ thời gian thực cho **CPU, RAM, Swap, Network**.
+    * Lưu lịch sử hiển thị (History graph).
+4.  **Thống kê người dùng (Users):**
+    * Tổng hợp tài nguyên (CPU/RAM/Số tiến trình) đang sử dụng bởi từng User.
+5.  **Dịch vụ hệ thống (Services):**
+    * Liệt kê các Systemd Service.
+    * Thao tác **Start/Stop/Restart** (Lưu ý: Cần quyền root/sudo cho các thao tác này).
+6.  **Startup Apps:**
+    * Quản lý các file `.desktop` trong thư mục autostart (User & System).
+    * **Enable/Disable** ứng dụng khởi động cùng hệ thống (User scope).
+7.  **Cấu hình:**
+    * Lưu trạng thái (kích thước cửa sổ, cột hiển thị, tốc độ update...) vào file JSON.
+
+---
+
+## 👥 Phân công nhiệm vụ (Team Roles)
+
+Dự án được phát triển theo mô hình module hóa, với sự phân công cụ thể như sau:
+
+| Thành viên | Module / File | Nhiệm vụ chi tiết |
+| :--- | :--- | :--- |
+| **Đặng Thị Bích Phượng** | `person1_core.py` | **Core / App Shell**<br>- Thiết kế khung ứng dụng (Notebook 6 tab, Status bar).<br>- Xây dựng Menu bar (Options, View, Help).<br>- Xử lý luồng Refresh Loop (`_tick`) toàn bộ ứng dụng.<br>- Quản lý lưu/đọc cấu hình (`config.json`) và trạng thái cửa sổ. |
+| **Vũ Thị Hải Anh** | `person2_processes.py` | **Processes Tab**<br>- UI & Logic tab Processes.<br>- Thu thập dữ liệu từ `psutil`, format CPU/RAM.<br>- Xử lý Search/Filter và ẩn process hệ thống.<br>- Sort dữ liệu theo cột.<br>- Context menu và các binding sự kiện. |
+| **Nguyễn Thị Nhật Lệ** | `person3_details.py` | **Details Tab**<br>- UI & Logic tab Details (TreeView độc lập).<br>- Cơ chế Sort riêng biệt cho tab Details.<br>- Quản lý ẩn/hiện cột chi tiết theo cấu hình.<br>- Refresh dữ liệu sử dụng collector chung. |
+| **Trần Bảo Nam** | `person4_actions.py` | **Actions & Properties**<br>- Xử lý logic End Task (SIGTERM), Kill (SIGKILL).<br>- Logic Set Priority (Nice) và CPU Affinity.<br>- Dialog hiển thị Properties chi tiết.<br>- Xử lý các ngoại lệ (Permission Denied, NoSuchProcess). |
+| **Cao Hữu Hà Khoa** | `person5_other_tabs.py` | **Performance, Users, Services, Startup**<br>- **Perf:** Vẽ biểu đồ Canvas (CPU/RAM/Net) + Lịch sử.<br>- **Users:** Thống kê tài nguyên theo User.<br>- **Services:** Quản lý Systemd units (Start/Stop/Restart).<br>- **Startup:** Quản lý file `.desktop`, toggle enable/disable. |
+
+---
+
+## 🛠️ Hướng dẫn Cài đặt & Chạy (Development)
+
+### 1. Yêu cầu hệ thống
+* Hệ điều hành: Linux (Ubuntu, Debian, Fedora, Arch, etc.)
+* Python: 3.6 trở lên.
+* Thư viện hệ thống: `python3-tk` (Thường đã có sẵn, nếu chưa hãy cài đặt qua apt/dnf/pacman).
+
+### 2. Cài đặt thư viện Python
+Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
+
+```bash
+
+# Cài đặt dependencies
+pip install psutil
