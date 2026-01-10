@@ -72,16 +72,16 @@ Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
   sudo pip install psutil
 
 ```
-### 3.Chay ung dung:
+### 3. Chạy ứng dụng:
 Để chạy ứng dụng từ mã nguồn python:<br>
-Di chuyển đến thư mục "HE_DIEU_HANH"
+Di chuyển đến thư mục "He_dieu_hanh"
 ```bash
-    cd HE_DIEU_HANH
+    cd He_dieu_hanh
     python3 run.py
 ```
 Note: 
 
-##  4.Hướng dẫn Dịch (Đóng gói thành file chạy exe/binary)
+##  4. Hướng dẫn Dịch (Đóng gói thành file chạy exe/binary)
 
 Để tạo ra một file chạy duy nhất (không cần cài Python mỗi lần chạy), bạn có thể sử dụng **PyInstaller**.
 
@@ -91,7 +91,7 @@ Note:
 pip install pyinstaller
 ```
 
-### 2.Thực hiện đóng gói:
+### 2. Thực hiện đóng gói:
 
 Chạy lệnh sau tại thư mục gốc của dự án:
 ```bash
@@ -103,7 +103,7 @@ Giải thích tham số:
 * --windowed: Chạy chế độ cửa sổ (không hiện màn hình đen terminal phía sau)
 * --name: "TaskManagerLinux": Đặt tên file đầu ra
 
-### 3.Kết quả:
+### 3. Kết quả:
 
 Sau khi chạy xong, file thực thi sẽ nằm trong thư mục dist/.
 ```bash
@@ -113,14 +113,14 @@ Thầy và các bạn có thể copy file TaskManagerLinux này sang máy Linux 
 
 ## Note:
 
-### 1.Quyền root:Một số tính năng như Restart Service (tab Services) hoặc Kill các tiến trình hệ thống sẽ yêu cầu bạn chạy ứng dụng với quyền sudo:
+### 1. Quyền root: Một số tính năng như Restart Service (tab Services) hoặc Kill các tiến trình hệ thống sẽ yêu cầu bạn chạy ứng dụng với quyền sudo:
 
 ```bash
 sudo python3 run.py
 # Hoặc
 sudo ./dist/TaskManagerLinux
 ```
-### 2.Config: Cấu hình ứng dụng được lưu tại ~/.config/py_task_manager/config.json. Nếu gặp lỗi giao diện, bạn có thể xóa file này để ứng dụng tạo lại cấu hình mặc định
+### 2. Config: Cấu hình ứng dụng được lưu tại ~/.config/py_task_manager/config.json. Nếu gặp lỗi giao diện, bạn có thể xóa file này để ứng dụng tạo lại cấu hình mặc định
 
 ## 5. Hướng dẫn Sử dụng chi tiết
 
@@ -129,7 +129,7 @@ Giao diện chia làm 6 Tab chính. Dưới đây là cách sử dụng từng T
 ### Tab 1: Processes (Tiến trình)
 Quản lý các phần mềm đang chạy.
 
-#### 1.Các thanh công cụ:
+#### 1. Các thanh công cụ:
 * **Tìm kiếm:** Nhập tên (vd: `chrome`) hoặc PID vào ô Search rồi nhấn Enter.
 * **Sắp xếp:** Click vào tiêu đề cột (ví dụ click `CPU %` , `PID` , `Memory`) để sắp xếp cao -> thấp.
 * **Menu chuột phải:** Click phải vào một dòng để:
@@ -139,14 +139,14 @@ Quản lý các phần mềm đang chạy.
     * *Properties:* Xem thông tin chi tiết về tiến trình đó.
 * **Auto Refresh:** Bỏ tích ô này nếu muốn danh sách đứng yên để dễ soi.
 * **Refresh Now:** Nhấn để cập nhật danh sách thủ công ngay lập tức
-#### 2. thông tin các cột:
+#### 2. Thông tin các cột:
 
 * **PID:** Mã số định danh duy nhất của tiến trình
-* **Name** Cho biết tên của tiến trình
-* **User** cho biết ai chạy ứng dụng này
-* **CPU %** Mức độ sử dụng vi xử lý
-* **Memory** dung lượng RAM bị chiếm dụng
-* **Command** Câu lệnh thực tế hoặc đường dẫn file đang chạy
+* **Name:** Cho biết tên của tiến trình
+* **User:** cho biết ai chạy ứng dụng này
+* **CPU %:** Mức độ sử dụng vi xử lý
+* **Memory:** dung lượng RAM bị chiếm dụng
+* **Command:** Câu lệnh thực tế hoặc đường dẫn file đang chạy
 
 
 
@@ -164,12 +164,12 @@ Giám sát sức khỏe phần cứng theo thời gian thực (Real-time).
 ###  Tab 3: Users
 Thống kê tài nguyên theo người dùng.
 
-#### 1.Các nút chức năng:
+#### 1. Các nút chức năng:
 * Hữu ích khi máy có nhiều user đăng nhập cùng lúc.
 * **Hiển thị:** Tổng số Process, Tổng % CPU, Tổng lượng RAM mà user đó chiếm dụng.
-* **refresh now** Nhấn nút này để cập nhật lại số liệu thống kê mới nhất (vì tab này có thể không tự nhảy số liên tục như tab Performance)
+* **refresh now:** Nhấn nút này để cập nhật lại số liệu thống kê mới nhất (vì tab này có thể không tự nhảy số liên tục như tab Performance)
 
-#### 2.Các cột thông tin
+#### 2. Các cột thông tin
 
 * **User:** Tên tài khoản
 * **Processes:** Tổng số lượng tiến trình mà tài khoản đó đang chạy
@@ -179,14 +179,14 @@ Thống kê tài nguyên theo người dùng.
 ### Tab 4: Details (Chi tiết)
 Giống tab Processes nhưng hiển thị chi tiết kỹ thuật hơn.
 
-#### 1.Các nút chức năng:
+#### 1. Các nút chức năng:
 * **Search:** Nhập tên (vd: `chrome`) hoặc PID vào ô Search rồi nhấn Enter
 * **refresh now:** nhấn nút này để cập nhật số liệu mới nhất
 * **properties:** xem thuộc tính kỹ thuật
 * **Kill** Ép buộc tiến trình dừng ngay lập tức
 * **End task** Yêu cầu tiến trình tắt một cách an toàn
 
-#### 2.Thông tin các cột:
+#### 2. Thông tin các cột:
 * **PID:** Định danh duy nhất của tiến trình
 * **Image Name:** Tên của tệp thực thi hoặc tên tiến trình
 * **User Name** Tên tài khoản của người dùng
@@ -197,32 +197,32 @@ Giống tab Processes nhưng hiển thị chi tiết kỹ thuật hơn.
 * **CPU %** Phần trăm CPU mà tiến trình đang chiếm dụng
 * **Memory(RSS):** Lượng bộ nhớ RAM vật lý thực tế mà tiến trình đang sử dụng
 * **Nice:** Giá trị ưu tiên của tiến trình
-* **threads** Số lượng luồng xử lý mà tiến trình đó đang mở
-* **FDs** số lượng files , socket hoặc kết nối mà tiến trình đang mở
-* **Start time** Thời gian cụ thể tiến trình đó bắt đầu đang chạy
-* **Command line** Câu lệnh đầy đủ dùng để khởi chạy tiến trình bao gồm cả đường dẫn file và các tham số (arguments)
+* **threads:** Số lượng luồng xử lý mà tiến trình đó đang mở
+* **FDs:** số lượng files , socket hoặc kết nối mà tiến trình đang mở
+* **Start time:** Thời gian cụ thể tiến trình đó bắt đầu đang chạy
+* **Command line:** Câu lệnh đầy đủ dùng để khởi chạy tiến trình bao gồm cả đường dẫn file và các tham số (arguments)
 
 ### Tab 5: Services (Dịch vụ)
 Quản lý các dịch vụ nền (Systemd Daemons).
 
-#### 1.Các nút chức năng:
+#### 1. Các nút chức năng:
 * **refresh now:** Cập nhật lại trạng thái của tất cả các dịch vụ
-* **Start** Bắt đầu một dịch vụ đang tắt
-* **Restart** Khởi động lại 1 dịch vụ
-* **NOTE** có thể Click đúp (Double click) vào một dòng để thực hiện lệnh Restart ngay lập tức (theo hướng dẫn ở thanh trạng thái dưới cùng).
+* **Start:** Bắt đầu một dịch vụ đang tắt
+* **Restart:** Khởi động lại 1 dịch vụ
+* **NOTE:** có thể Click đúp (Double click) vào một dòng để thực hiện lệnh Restart ngay lập tức (theo hướng dẫn ở thanh trạng thái dưới cùng).
 
-#### 2.Ý nghĩa các cột trạng thái:
+#### 2.:Ý nghĩa các cột trạng thái:
 
 * **Services:** Tên kỹ thuật của dịch vụ
 * **Load:** Trạng thái nạp cấu hình
 * **Active hoặc inactive:** hoạt động hoặc không hoạt động
 * **Sub:** Trạng thái chi tiết
-* **Description** Mô tả ngắn gọn chức năng của dịch vụ đó
+* **Description:** Mô tả ngắn gọn chức năng của dịch vụ đó
 
 ###  Tab 6: Startup (Khởi động)
 Quản lý ứng dụng chạy cùng hệ thống.
 
-#### 1.Thanh công cụ chức năng:
+#### 1. Thanh công cụ chức năng:
 
 * **Refresh now:** Cập nhật lại danh sách nếu bạn vừa cài đặt hoặc gỡ bỏ phần mềm.
 * **Open auto start folder:** Mở nhanh thư mục chứa các file cấu hình khởi động trên máy
@@ -231,13 +231,13 @@ Quản lý ứng dụng chạy cùng hệ thống.
 * **Enable/disable(user):** dùng để bật hoặc tắt quyền tự khởi tạo của ứng dụng
 * * **Lưu ý:**Dòng chữ nhỏ dưới đáy cửa sổ ghi rõ "Enable/Disable chỉ áp dụng cho user scope". Nghĩa là bạn chỉ tắt được các app do bạn cài (ví dụ: Zalo, Unikey...), còn các dịch vụ cốt lõi của hệ thống (Scope: System) thì nút này có thể không hoạt động để đảm bảo an toàn.
 
-#### 2.Các cột thông tin:
+#### 2. Các cột thông tin:
 
 * **Name:** tên ứng dụng dịch vụ
 * **Enabled:** Trạng thái hiện tại
 * **Scope:** Phạm vi ảnh hưởng
 * * **System:** dịch vụ của toàn hệ thống
-* * **User** Ứng dụng riêng của người dùng 
+* * **User:** Ứng dụng riêng của người dùng 
 * **Exec:** Đường dẫn lệnh thực tế mà máy sẽ chạy
 
 
