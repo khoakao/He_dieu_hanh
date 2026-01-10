@@ -110,7 +110,6 @@ Sau khi chạy xong, file thực thi sẽ nằm trong thư mục dist/.
 ```bash
   ./dist/TaskManagerLinux
 ```
-Thầy và các bạn có thể copy file TaskManagerLinux này sang máy Linux khác để chạy mà không cần cài đặt lại môi trường Python
 
 ## Note:
 
