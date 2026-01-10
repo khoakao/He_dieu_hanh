@@ -74,9 +74,9 @@ Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
 ```
 ### 3.Chay ung dung:
 Để chạy ứng dụng từ mã nguồn python:<br>
-Di chuyển đến thư mục "HE_DIEU_HANH"
+Di chuyển đến thư mục chứa mã nguồn
 ```bash
-    cd He_dieu_hanh
+    cd <thư mục chứa mã nguồn>
     python3 run.py
 ```
 Note: 
