@@ -129,16 +129,28 @@ Giao diện chia làm 6 Tab chính. Dưới đây là cách sử dụng từng T
 ### Tab 1: Processes (Tiến trình)
 Quản lý các phần mềm đang chạy.
 
+#### 1.Các thanh công cụ:
 * **Tìm kiếm:** Nhập tên (vd: `chrome`) hoặc PID vào ô Search rồi nhấn Enter.
-* **Sắp xếp:** Click vào tiêu đề cột (ví dụ click `CPU %`) để sắp xếp cao -> thấp.
+* **Sắp xếp:** Click vào tiêu đề cột (ví dụ click `CPU %` , `PID` , `Memory`) để sắp xếp cao -> thấp.
 * **Menu chuột phải:** Click phải vào một dòng để:
-    * *End Task:* Yêu cầu tắt phần mềm.
-    * *Kill:* Ép buộc tắt ngay lập tức (dùng khi bị treo).
-    * *Set Priority:* Chỉnh độ ưu tiên (Số càng nhỏ ưu tiên càng cao).
-    * *Set Affinity:* Chọn CPU cụ thể cho ứng dụng chạy.
+    * *Set priority:* Thay đổi độ ưu tiên của tiến trình (liên quan đến cột Nice).
+    * *Kill(SIGKILL):* Ép buộc tắt ngay lập tức (dùng khi bị treo).
+    * *End task:* Yêu cầu phần mềm tắt một cách bình thường (an toàn hơn Kill).
+    * *Properties:* Xem thông tin chi tiết về tiến trình đó.
 * **Auto Refresh:** Bỏ tích ô này nếu muốn danh sách đứng yên để dễ soi.
+* **Refresh Now:** Nhấn để cập nhật danh sách thủ công ngay lập tức
+#### 2. thông tin các cột:
 
-### 📈 Tab 2: Performance (Hiệu năng)
+* **PID:** Mã số định danh duy nhất của tiến trình
+* **Name** Cho biết tên của tiến trình
+* **User** cho biết ai chạy ứng dụng này
+* **CPU %** Mức độ sử dụng vi xử lý
+* **Memory** dung lượng RAM bị chiếm dụng
+* **Command** Câu lệnh thực tế hoặc đường dẫn file đang chạy
+
+
+
+### Tab 2: Performance (Hiệu năng)
 Giám sát sức khỏe phần cứng theo thời gian thực (Real-time).
 
 * **CPU:** Biểu đồ đường màu xanh dương.
@@ -147,32 +159,85 @@ Giám sát sức khỏe phần cứng theo thời gian thực (Real-time).
     * Màu đỏ: Tốc độ Gửi (Sent).
     * Màu xanh lá: Tốc độ Nhận (Received).
 * *Lưu ý:* Biểu đồ lưu lại lịch sử 60 giây gần nhất.
+* **Swap:** Bộ nhớ ảo (lấy từ ổ cứng) đang được sử dụng khi RAM thật bị đầy
 
 ###  Tab 3: Users
 Thống kê tài nguyên theo người dùng.
 
+#### 1.Các nút chức năng:
 * Hữu ích khi máy có nhiều user đăng nhập cùng lúc.
 * **Hiển thị:** Tổng số Process, Tổng % CPU, Tổng lượng RAM mà user đó chiếm dụng.
+* **refresh now** Nhấn nút này để cập nhật lại số liệu thống kê mới nhất (vì tab này có thể không tự nhảy số liên tục như tab Performance)
+
+#### 2.Các cột thông tin
+
+* **User:** Tên tài khoản
+* **Processes:** Tổng số lượng tiến trình mà tài khoản đó đang chạy
+* **CPU %:** Tổng phần trăm sức mạnh xử lý mà tài khoản đó đã chiếm dụng
+* **Memory:** Tổng dung lượng RAM mà tài khoản đó đã dùng 
 
 ### Tab 4: Details (Chi tiết)
 Giống tab Processes nhưng hiển thị chi tiết kỹ thuật hơn.
 
-* Hiển thị **Command Line** đầy đủ (đường dẫn file chạy và các tham số khởi động).
-* Cột riêng biệt, có thể cấu hình hiển thị trong Menu `View` -> `Select columns`.
+#### 1.Các nút chức năng:
+* **Search:** Nhập tên (vd: `chrome`) hoặc PID vào ô Search rồi nhấn Enter
+* **refresh now:** nhấn nút này để cập nhật số liệu mới nhất
+* **properties:** xem thuộc tính kỹ thuật
+* **Kill** Ép buộc tiến trình dừng ngay lập tức
+* **End task** Yêu cầu tiến trình tắt một cách an toàn
+
+#### 2.Thông tin các cột:
+* **PID:** Định danh duy nhất của tiến trình
+* **Image Name:** Tên của tệp thực thi hoặc tên tiến trình
+* **User Name** Tên tài khoản của người dùng
+* **Status:** Trạng thái hiện tại của tiến trình
+* * **Running:** Đang xử lý tính toán
+* * **Sleeping:** Đang chờ tài nguyên hoặc tín hiệu 
+* * **Idle:** Nhàn rỗi
+* **CPU %** Phần trăm CPU mà tiến trình đang chiếm dụng
+* **Memory(RSS):** Lượng bộ nhớ RAM vật lý thực tế mà tiến trình đang sử dụng
+* **Nice:** Giá trị ưu tiên của tiến trình
+* **threads** Số lượng luồng xử lý mà tiến trình đó đang mở
+* **FDs** số lượng files , socket hoặc kết nối mà tiến trình đang mở
+* **Start time** Thời gian cụ thể tiến trình đó bắt đầu đang chạy
+* **Command line** Câu lệnh đầy đủ dùng để khởi chạy tiến trình bao gồm cả đường dẫn file và các tham số (arguments)
 
 ### Tab 5: Services (Dịch vụ)
 Quản lý các dịch vụ nền (Systemd Daemons).
 
-* **Các cột:** Unit (Tên), Load (Trạng thái nạp), Active (Đang chạy hay không), Sub (Trạng thái con).
-* **Thao tác:** Chọn service -> Bấm nút **Restart Service**.
-* **Yêu cầu:** Cần chạy app bằng `sudo` mới thao tác được.
+#### 1.Các nút chức năng:
+* **refresh now:** Cập nhật lại trạng thái của tất cả các dịch vụ
+* **Start** Bắt đầu một dịch vụ đang tắt
+* **Restart** Khởi động lại 1 dịch vụ
+* **NOTE** có thể Click đúp (Double click) vào một dòng để thực hiện lệnh Restart ngay lập tức (theo hướng dẫn ở thanh trạng thái dưới cùng).
+
+#### 2.Ý nghĩa các cột trạng thái:
+
+* **Services:** Tên kỹ thuật của dịch vụ
+* **Load:** Trạng thái nạp cấu hình
+* **Active hoặc inactive:** hoạt động hoặc không hoạt động
+* **Sub:** Trạng thái chi tiết
+* **Description** Mô tả ngắn gọn chức năng của dịch vụ đó
 
 ###  Tab 6: Startup (Khởi động)
 Quản lý ứng dụng chạy cùng hệ thống.
 
-* **User Scope:** Ứng dụng cài riêng cho user hiện tại (`~/.config/autostart`).
-* **System Scope:** Ứng dụng toàn hệ thống (`/etc/xdg/autostart`).
-* **Toggle (User):** Chọn dòng thuộc User Scope -> Bấm nút để Bật/Tắt (Enable/Disable).
-* **Open Folder:** Mở nhanh thư mục chứa file cấu hình khởi động.
+#### 1.Thanh công cụ chức năng:
+
+* **Refresh now:** Cập nhật lại danh sách nếu bạn vừa cài đặt hoặc gỡ bỏ phần mềm.
+* **Open auto start folder:** Mở nhanh thư mục chứa các file cấu hình khởi động trên máy
+* **Open file:** Mở file nội dung cấu hình của ứng dụng đang chọn để xem hoặc chỉnh sửa thủ công
+
+* **Enable/disable(user):** dùng để bật hoặc tắt quyền tự khởi tạo của ứng dụng
+* * **Lưu ý:**Dòng chữ nhỏ dưới đáy cửa sổ ghi rõ "Enable/Disable chỉ áp dụng cho user scope". Nghĩa là bạn chỉ tắt được các app do bạn cài (ví dụ: Zalo, Unikey...), còn các dịch vụ cốt lõi của hệ thống (Scope: System) thì nút này có thể không hoạt động để đảm bảo an toàn.
+
+#### 2.Các cột thông tin:
+
+* **Name:** tên ứng dụng dịch vụ
+* **Enabled:** Trạng thái hiện tại
+* **Scope:** Phạm vi ảnh hưởng
+* * **System:** dịch vụ của toàn hệ thống
+* * **User** Ứng dụng riêng của người dùng 
+* **Exec:** Đường dẫn lệnh thực tế mà máy sẽ chạy
 
 
