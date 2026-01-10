@@ -116,7 +116,7 @@ Thầy và các bạn có thể copy file TaskManagerLinux này sang máy Linux 
 ### 1.Quyền root:Một số tính năng như Restart Service (tab Services) hoặc Kill các tiến trình hệ thống sẽ yêu cầu bạn chạy ứng dụng với quyền sudo:
 
 ```bash
-  sudo python3 run.py
+sudo python3 run.py
 # Hoặc
 sudo ./dist/TaskManagerLinux
 ```
