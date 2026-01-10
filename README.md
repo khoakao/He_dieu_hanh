@@ -229,15 +229,15 @@ Quản lý ứng dụng chạy cùng hệ thống.
 * **Open file:** Mở file nội dung cấu hình của ứng dụng đang chọn để xem hoặc chỉnh sửa thủ công
 
 * **Enable/disable(user):** dùng để bật hoặc tắt quyền tự khởi tạo của ứng dụng
-* * **Lưu ý:**Dòng chữ nhỏ dưới đáy cửa sổ ghi rõ "Enable/Disable chỉ áp dụng cho user scope". Nghĩa là bạn chỉ tắt được các app do bạn cài (ví dụ: Zalo, Unikey...), còn các dịch vụ cốt lõi của hệ thống (Scope: System) thì nút này có thể không hoạt động để đảm bảo an toàn.
+* **Lưu ý:**Dòng chữ nhỏ dưới đáy cửa sổ ghi rõ "Enable/Disable chỉ áp dụng cho user scope". Nghĩa là bạn chỉ tắt được các app do bạn cài (ví dụ: Zalo, Unikey...), còn các dịch vụ cốt lõi của hệ thống (Scope: System) thì nút này có thể không hoạt động để đảm bảo an toàn.
 
 #### 2.Các cột thông tin:
 
 * **Name:** tên ứng dụng dịch vụ
 * **Enabled:** Trạng thái hiện tại
 * **Scope:** Phạm vi ảnh hưởng
-* * **System:** dịch vụ của toàn hệ thống
-* * **User** Ứng dụng riêng của người dùng 
+* **System:** dịch vụ của toàn hệ thống
+* **User** Ứng dụng riêng của người dùng 
 * **Exec:** Đường dẫn lệnh thực tế mà máy sẽ chạy
 
 
