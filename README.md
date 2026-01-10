@@ -43,11 +43,11 @@ Dự án được phát triển theo mô hình module hóa, với sự phân cô
 
 | Thành viên | Module / File | Nhiệm vụ chi tiết |
 | :--- | :--- | :--- |
-| **Đặng Thị Bích Phượng** | `person1_core.py` | **Core / App Shell**<br>- Thiết kế khung ứng dụng (Notebook 6 tab, Status bar).<br>- Xây dựng Menu bar (Options, View, Help).<br>- Xử lý luồng Refresh Loop (`_tick`) toàn bộ ứng dụng.<br>- Quản lý lưu/đọc cấu hình (`config.json`) và trạng thái cửa sổ. |
-| **Vũ Thị Hải Anh** | `person2_processes.py` | **Processes Tab**<br>- UI & Logic tab Processes.<br>- Thu thập dữ liệu từ `psutil`, format CPU/RAM.<br>- Xử lý Search/Filter và ẩn process hệ thống.<br>- Sort dữ liệu theo cột.<br>- Context menu và các binding sự kiện. |
-| **Nguyễn Thị Nhật Lệ** | `person3_details.py` | **Details Tab**<br>- UI & Logic tab Details (TreeView độc lập).<br>- Cơ chế Sort riêng biệt cho tab Details.<br>- Quản lý ẩn/hiện cột chi tiết theo cấu hình.<br>- Refresh dữ liệu sử dụng collector chung. |
-| **Trần Bảo Nam** | `person4_actions.py` | **Actions & Properties**<br>- Xử lý logic End Task (SIGTERM), Kill (SIGKILL).<br>- Logic Set Priority (Nice) và CPU Affinity.<br>- Dialog hiển thị Properties chi tiết.<br>- Xử lý các ngoại lệ (Permission Denied, NoSuchProcess). |
-| **Cao Hữu Hà Khoa** | `person5_other_tabs.py` | **Performance, Users, Services, Startup**<br>- **Perf:** Vẽ biểu đồ Canvas (CPU/RAM/Net) + Lịch sử.<br>- **Users:** Thống kê tài nguyên theo User.<br>- **Services:** Quản lý Systemd units (Start/Stop/Restart).<br>- **Startup:** Quản lý file `.desktop`, toggle enable/disable. |
+| **Đặng Thị Bích Phượng** | `person1_core.py`(hoàn thành) | **Core / App Shell**<br>- Thiết kế khung ứng dụng (Notebook 6 tab, Status bar).<br>- Xây dựng Menu bar (Options, View, Help).<br>- Xử lý luồng Refresh Loop (`_tick`) toàn bộ ứng dụng.<br>- Quản lý lưu/đọc cấu hình (`config.json`) và trạng thái cửa sổ. |
+| **Vũ Thị Hải Anh** | `person2_processes.py`(hoàn thành) | **Processes Tab**<br>- UI & Logic tab Processes.<br>- Thu thập dữ liệu từ `psutil`, format CPU/RAM.<br>- Xử lý Search/Filter và ẩn process hệ thống.<br>- Sort dữ liệu theo cột.<br>- Context menu và các binding sự kiện. |
+| **Nguyễn Thị Nhật Lệ** | `person3_details.py`(hoàn thành) | **Details Tab**<br>- UI & Logic tab Details (TreeView độc lập).<br>- Cơ chế Sort riêng biệt cho tab Details.<br>- Quản lý ẩn/hiện cột chi tiết theo cấu hình.<br>- Refresh dữ liệu sử dụng collector chung. |
+| **Trần Bảo Nam** | `person4_actions.py`(hoàn thành) | **Actions & Properties**<br>- Xử lý logic End Task (SIGTERM), Kill (SIGKILL).<br>- Logic Set Priority (Nice) và CPU Affinity.<br>- Dialog hiển thị Properties chi tiết.<br>- Xử lý các ngoại lệ (Permission Denied, NoSuchProcess). |
+| **Cao Hữu Hà Khoa** | `person5_other_tabs.py`(hoàn thành) | **Performance, Users, Services, Startup**<br>- **Perf:** Vẽ biểu đồ Canvas (CPU/RAM/Net) + Lịch sử.<br>- **Users:** Thống kê tài nguyên theo User.<br>- **Services:** Quản lý Systemd units (Start/Stop/Restart).<br>- **Startup:** Quản lý file `.desktop`, toggle enable/disable. |
 
 ---
 
@@ -72,7 +72,7 @@ cài đặt thư viện phụ thuộc (`psutil`):
   sudo apt-get install python3-psutil
 
 ```
-### 3.Chay ung dung:
+### 3.Chạy ứng dụng:
 Để chạy ứng dụng từ mã nguồn python:<br>
 Di chuyển đến thư mục chứa mã nguồn
 ```bash
@@ -239,7 +239,7 @@ Quản lý ứng dụng chạy cùng hệ thống.
 * **User** Ứng dụng riêng của người dùng 
 * **Exec:** Đường dẫn lệnh thực tế mà máy sẽ chạy
 
-## 6.Mức độ hoàn thành:
+## 6.Mức độ hoàn thành(so với task manager trên window):
 
 ### 1.Giao diện(GUI) : hoàn thành được 90% cần bổ sung Dark Mode 
 ### 2.Giám sát CPU /RAM : hoàn thành được 100% ổn định được realtime
