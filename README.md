@@ -240,4 +240,14 @@ Quản lý ứng dụng chạy cùng hệ thống.
 * **User** Ứng dụng riêng của người dùng 
 * **Exec:** Đường dẫn lệnh thực tế mà máy sẽ chạy
 
+## 6.Mức độ hoàn thành:
+
+### 1.Giao diện(GUI) : hoàn thành được 90% cần bổ sung Dark Mode 
+### 2.Giám sát CPU /RAM : hoàn thành được 100% ổn định được realtime
+### 3.Quản lý Process: Hoàn thành 85% đã có kill và renice cần bổ sung Tree View và Disk I/O per process
+### 4.Quản lý service: đã tích hợp systemd nhưng cần xử lý bất đồng bộ để tránh lag UI
+### 5.Kiến trúc phần mềm: hoàn thành 70% cần cải thiện multi-threading cho các tác vụ nặng
+
+
+
 
