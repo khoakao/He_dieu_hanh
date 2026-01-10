@@ -76,7 +76,7 @@ Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
 Để chạy ứng dụng từ mã nguồn python:<br>
 Di chuyển đến thư mục "HE_DIEU_HANH"
 ```bash
-    cd HE_DIEU_HANH
+    cd He_dieu_hanh
     python3 run.py
 ```
 Note: 
@@ -191,9 +191,9 @@ Giống tab Processes nhưng hiển thị chi tiết kỹ thuật hơn.
 * **Image Name:** Tên của tệp thực thi hoặc tên tiến trình
 * **User Name** Tên tài khoản của người dùng
 * **Status:** Trạng thái hiện tại của tiến trình
-* * **Running:** Đang xử lý tính toán
-* * **Sleeping:** Đang chờ tài nguyên hoặc tín hiệu 
-* * **Idle:** Nhàn rỗi
+* **Running:** Đang xử lý tính toán
+* **Sleeping:** Đang chờ tài nguyên hoặc tín hiệu 
+* **Idle:** Nhàn rỗi
 * **CPU %** Phần trăm CPU mà tiến trình đang chiếm dụng
 * **Memory(RSS):** Lượng bộ nhớ RAM vật lý thực tế mà tiến trình đang sử dụng
 * **Nice:** Giá trị ưu tiên của tiến trình
