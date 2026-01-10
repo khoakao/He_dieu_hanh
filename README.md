@@ -72,3 +72,4 @@ Sử dụng `pip` để cài đặt thư viện phụ thuộc (`psutil`):
   ```bash
   sudo pip install psutil
 
+### Cai dat thu vien python
