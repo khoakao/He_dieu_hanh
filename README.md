@@ -20,7 +20,6 @@ Một ứng dụng **Task Manager** dành cho Linux được viết bằng **Pyt
     * **End task** (Gửi tín hiệu SIGTERM).
     * **Kill process** (Gửi tín hiệu SIGKILL - buộc dừng).
     * Thay đổi độ ưu tiên (**Set Priority/Nice**).
-    * Thiết lập **CPU Affinity** (gán CPU cụ thể cho tiến trình).
     * Xem **Properties** chi tiết và mở thư mục chứa file chạy (`xdg-open`).
 3.  **Giám sát hiệu năng (Performance):**
     * Biểu đồ thời gian thực cho **CPU, RAM, Swap, Network**.
